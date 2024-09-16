@@ -11,13 +11,13 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
 
     - name: Set up LaTeX environment
-      uses: xu-cheng/latex-action@v3
+      uses: xu-chang/latex-action@v1
       with:
         root_file: card.tex
-        latexmk_use_lualatex: true  # Change this to 'true' if using xelatex
+        latexmk_use_xelatex: true  # Change to 'true' if using xelatex
 
     - name: Upload compiled PDF
       uses: actions/upload-artifact@v3
