@@ -11,10 +11,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up LaTeX environment
-      uses: xenolion/latex-action@v1
+      uses: xu-cheng/latex-action@v3
       with:
         root_file: card.tex
         latexmk_use_lualatex: true  # Change this to 'true' if using xelatex
