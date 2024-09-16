@@ -1,0 +1,55 @@
+name: Compile and Release LaTeX PDF
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  compile_latex:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up LaTeX environment
+      uses: dante-ev/latex-action@v2
+      with:
+        root_file: card.tex
+        latexmk_use_lualatex: true  # If you're using xelatex, change this to 'true'
+
+    - name: Upload compiled PDF
+      uses: actions/upload-artifact@v3
+      with:
+        name: business-card
+        path: ./card.pdf  # Ensure this is the correct path to your compiled PDF
+
+  create_release:
+    needs: compile_latex
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Create a new release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: "Business Card Release - ${{ github.ref }}"
+        draft: false
+        prerelease: false
+
+    - name: Upload the PDF to the release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./card.pdf  # Path to the compiled PDF
+        asset_name: business_card.pdf
+        asset_content_type: application/pdf
