@@ -13,6 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install LaTeX dependencies
+        run: sudo apt-get install texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra texlive-xetex
+
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v3
         with:
