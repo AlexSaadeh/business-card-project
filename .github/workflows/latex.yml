@@ -1,55 +1,44 @@
-name: Compile and Release LaTeX PDF
+name: Build and Release LaTeX Document
 
 on:
   push:
     tags:
-      - '*'
+      - 'v*'
 
 jobs:
-  compile_latex:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Compile LaTeX document
-      uses: xu-cheng/latex-action@v3
-      with:
-        root_file: card.tex
-        latexmk_use_xelatex: true  # Use XeLaTeX for compilation
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: card.tex
 
-    - name: Upload compiled PDF
-      uses: actions/upload-artifact@v4
-      with:
-        name: business-card
-        path: card.pdf  # Path to the compiled PDF
+      - name: Upload PDF as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: card-pdf
+          path: card.pdf
 
-  create_release:
-    needs: compile_latex
-    runs-on: ubuntu-latest
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Create a new release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: "Business Card Release - ${{ github.ref }}"
-        draft: false
-        prerelease: false
-
-    - name: Upload the PDF to the release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: card.pdf  # Path to the compiled PDF
-        asset_name: business_card.pdf
-        asset_content_type: application/pdf
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: card.pdf
+          asset_name: card.pdf
+          asset_content_type: application/pdf
